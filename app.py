@@ -1,18 +1,15 @@
 import streamlit as st
 import pandas as pd
-import nltk
 import string
 import re
 
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 
 # -----------------------------
 # PAGE TITLE
 # -----------------------------
 st.title("Fake News Detection App")
-
 st.write("Enter a news headline below to check if it is Fake or Real.")
 
 # -----------------------------
@@ -27,7 +24,7 @@ def load_data():
 df = load_data()
 
 # -----------------------------
-# TEXT CLEANING FUNCTION
+# TEXT CLEANING
 # -----------------------------
 def clean_text(text):
     text = text.lower()
@@ -38,7 +35,7 @@ def clean_text(text):
 df["text"] = df["text"].apply(clean_text)
 
 # -----------------------------
-# MODEL TRAINING (Cached)
+# TRAIN MODEL
 # -----------------------------
 @st.cache_resource
 def train_model():
@@ -66,9 +63,15 @@ if st.button("Predict"):
     else:
         cleaned = clean_text(user_input)
         vectorized_input = vectorizer.transform([cleaned])
+
         prediction = model.predict(vectorized_input)[0]
+        probabilities = model.predict_proba(vectorized_input)[0]
+
+        confidence = max(probabilities) * 100
 
         if prediction == "fake":
-            st.error("Prediction: FAKE NEWS ❌")
+            st.error(f"Prediction: FAKE NEWS ❌")
         else:
-            st.success("Prediction: REAL NEWS ✅")
+            st.success(f"Prediction: REAL NEWS ✅")
+
+        st.write(f"Confidence Score: {confidence:.2f}%")
