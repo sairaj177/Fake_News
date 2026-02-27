@@ -1,2 +1,4 @@
-flask
+streamlit==1.54.0
 pandas
+scikit-learn
+nltk
